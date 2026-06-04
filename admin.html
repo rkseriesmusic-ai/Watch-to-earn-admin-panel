@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Watch to Earn — Super Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0F172A;--bg2:#111827;--card:#1E293B;--card2:#243044;
+  --p:#7B2FF7;--p2:#A855F7;--p3:#C084FC;
+  --text:#F1F5F9;--muted:#94A3B8;--border:#334155;
+  --green:#10B981;--red:#EF4444;--yellow:#F59E0B;--blue:#3B82F6;
+  --r:20px;--r2:12px;--r3:8px;
+  --shadow:0 8px 32px rgba(123,47,247,.18);
+  --shadow2:0 2px 12px rgba(0,0,0,.4);
+  --glass:rgba(30,41,59,.7);
+  --trans:all .22s cubic-bezier(.4,0,.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+h1,h2,h3,h4,.brand{font-family:'Syne',sans-serif}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--p);border-radius:10px}
+
+/* ─── UTILS ─── */
+.hidden{display:none!important}
+.flex{display:flex}.gap4{gap:4px}.gap8{gap:8px}.gap12{gap:12px}.gap16{gap:16px}.gap24{gap:24px}
+.ac{align-items:center}.jb{justify-content:space-between}.jc{justify-content:center}.jend{justify-content:flex-end}
+.col{flex-direction:column}
+.w100{width:100%}.h100{height:100%}
+.pointer{cursor:pointer}
+.ellipsis{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ─── TOAST ─── */
+#toastContainer{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px}
+.toast{padding:14px 20px;border-radius:var(--r3);font-size:14px;font-weight:500;backdrop-filter:blur(12px);
+  animation:slideIn .3s ease;max-width:320px;border:1px solid var(--border)}
+.toast.success{background:rgba(16,185,129,.18);border-color:var(--green);color:var(--green)}
+.toast.error{background:rgba(239,68,68,.18);border-color:var(--red);color:var(--red)}
+.toast.info{background:rgba(168,85,247,.18);border-color:var(--p2);color:var(--p2)}
+.toast.warning{background:rgba(245,158,11,.18);border-color:var(--yellow);color:var(--yellow)}
+@keyframes slideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes slideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(120%);opacity:0}}
+
+/* ─── LOGIN ─── */
+#loginScreen{position:fixed;inset:0;z-index:1000;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 60% 20%,rgba(123,47,247,.15) 0%,transparent 60%),
+             radial-gradient(ellipse at 10% 80%,rgba(168,85,247,.1) 0%,transparent 50%),var(--bg)}
+.login-card{width:100%;max-width:420px;margin:20px;padding:44px 40px;
+  background:var(--glass);backdrop-filter:blur(20px);
+  border:1px solid rgba(123,47,247,.25);border-radius:var(--r);box-shadow:var(--shadow)}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo .icon{width:64px;height:64px;background:linear-gradient(135deg,var(--p),var(--p2));
+  border-radius:18px;display:inline-flex;align-items:center;justify-content:center;
+  font-size:28px;margin-bottom:16px;box-shadow:0 8px 24px rgba(123,47,247,.4)}
+.login-logo h1{font-size:24px;font-weight:800;background:linear-gradient(90deg,var(--p2),var(--p3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.login-logo p{font-size:13px;color:var(--muted);margin-top:4px}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.form-control{width:100%;padding:13px 16px;background:rgba(15,23,42,.6);border:1px solid var(--border);
+  border-radius:var(--r2);color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;
+  transition:var(--trans);outline:none}
+.form-control:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(123,47,247,.15)}
+.form-control::placeholder{color:var(--muted)}
+.input-wrap{position:relative}
+.input-wrap .form-control{padding-right:46px}
+.eye-btn{position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:4px}
+.eye-btn:hover{color:var(--p2)}
+.form-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.checkbox-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--muted)}
+.checkbox-wrap input{accent-color:var(--p);width:14px;height:14px}
+.forgot-link{font-size:13px;color:var(--p2);cursor:pointer;text-decoration:none}
+.forgot-link:hover{color:var(--p3)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;
+  border:none;border-radius:var(--r2);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;
+  cursor:pointer;transition:var(--trans);outline:none;white-space:nowrap}
+.btn-primary{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;box-shadow:0 4px 16px rgba(123,47,247,.4)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(123,47,247,.5)}
+.btn-primary:active{transform:translateY(0)}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn-full{width:100%}
+.btn-sm{padding:8px 14px;font-size:12px;border-radius:8px}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--p2);color:var(--p2)}
+.btn-danger{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:var(--red)}
+.btn-danger:hover{background:rgba(239,68,68,.25)}
+.btn-success{background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:var(--green)}
+.btn-success:hover{background:rgba(16,185,129,.25)}
+.btn-warning{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:var(--yellow)}
+.btn-warning:hover{background:rgba(245,158,11,.25)}
+.btn-info{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:var(--blue)}
+.btn-info:hover{background:rgba(59,130,246,.25)}
+.btn-ghost{background:transparent;border:none;color:var(--muted)}
+.btn-ghost:hover{color:var(--text)}
+.login-spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ─── ACCESS DENIED ─── */
+#accessDenied{position:fixed;inset:0;z-index:900;background:var(--bg);
+  display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+#accessDenied h1{font-size:48px;font-weight:800;color:var(--red)}
+#accessDenied p{color:var(--muted)}
+
+/* ─── LAYOUT ─── */
+#appShell{display:none;height:100vh;overflow:hidden}
+#sidebar{width:260px;min-width:260px;height:100vh;overflow-y:auto;
+  background:var(--card);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;transition:var(--trans);position:relative;z-index:100}
+#sidebar.collapsed{width:72px;min-width:72px}
+.sidebar-header{padding:24px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px}
+.sidebar-logo{width:40px;height:40px;min-width:40px;background:linear-gradient(135deg,var(--p),var(--p2));
+  border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(123,47,247,.35)}
+.sidebar-brand{font-size:16px;font-weight:800;transition:var(--trans);white-space:nowrap;overflow:hidden;
+  background:linear-gradient(90deg,var(--p2),var(--p3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+#sidebar.collapsed .sidebar-brand{opacity:0;width:0}
+.sidebar-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:4px}
+.nav-section-title{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;
+  letter-spacing:1.2px;padding:12px 8px 6px;transition:var(--trans);white-space:nowrap;overflow:hidden}
+#sidebar.collapsed .nav-section-title{opacity:0}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:var(--r3);
+  cursor:pointer;transition:var(--trans);color:var(--muted);font-size:14px;font-weight:500;
+  white-space:nowrap;overflow:hidden;position:relative}
+.nav-item:hover{background:rgba(123,47,247,.1);color:var(--text)}
+.nav-item.active{background:rgba(123,47,247,.18);color:var(--p2)}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:3px;height:60%;background:var(--p2);border-radius:0 3px 3px 0}
+.nav-item .icon{min-width:20px;text-align:center;font-size:16px}
+.nav-item span{transition:var(--trans);overflow:hidden}
+#sidebar.collapsed .nav-item span{opacity:0;width:0}
+.nav-badge{margin-left:auto;min-width:20px;height:20px;background:var(--red);border-radius:10px;
+  font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;
+  color:#fff;padding:0 6px;transition:var(--trans)}
+#sidebar.collapsed .nav-badge{display:none}
+.sidebar-footer{padding:16px 12px;border-top:1px solid var(--border)}
+.admin-profile{display:flex;align-items:center;gap:12px;padding:10px;border-radius:var(--r2);
+  background:rgba(123,47,247,.08);overflow:hidden}
+.admin-avatar{width:36px;height:36px;min-width:36px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--p2));
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.admin-info{overflow:hidden}
+.admin-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:var(--trans)}
+.admin-role{font-size:11px;color:var(--p2);font-weight:500;transition:var(--trans)}
+#sidebar.collapsed .admin-info{display:none}
+.collapse-btn{position:absolute;right:-14px;top:50%;transform:translateY(-50%);
+  width:28px;height:28px;background:var(--card2);border:1px solid var(--border);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:12px;color:var(--muted);transition:var(--trans);z-index:10}
+.collapse-btn:hover{background:var(--p);color:#fff;border-color:var(--p)}
+
+/* ─── MAIN ─── */
+#mainArea{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#topbar{height:64px;min-height:64px;background:var(--card);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 24px;gap:16px}
+.topbar-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;flex:1}
+.topbar-actions{display:flex;align-items:center;gap:12px}
+.icon-btn{width:38px;height:38px;border-radius:var(--r3);background:var(--card2);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:var(--trans);color:var(--muted);font-size:16px;position:relative}
+.icon-btn:hover{border-color:var(--p2);color:var(--p2)}
+.notif-dot{position:absolute;top:8px;right:8px;width:7px;height:7px;background:var(--red);border-radius:50%;border:1px solid var(--card)}
+.date-chip{font-size:12px;color:var(--muted);background:var(--card2);border:1px solid var(--border);
+  padding:6px 14px;border-radius:20px}
+#content{flex:1;overflow-y:auto;padding:24px}
+
+/* ─── PAGE ─── */
+.page{display:none}
+.page.active{display:block}
+.page-header{margin-bottom:24px}
+.page-title{font-size:22px;font-weight:800}
+.page-sub{font-size:14px;color:var(--muted);margin-top:4px}
+
+/* ─── STATS GRID ─── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  padding:20px;transition:var(--trans);position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;right:0;width:80px;height:80px;
+  border-radius:0 var(--r) 0 100%;opacity:.07}
+.stat-card.purple::before{background:var(--p)}
+.stat-card.green::before{background:var(--green)}
+.stat-card.blue::before{background:var(--blue)}
+.stat-card.yellow::before{background:var(--yellow)}
+.stat-card.red::before{background:var(--red)}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow2)}
+.stat-icon{font-size:24px;margin-bottom:12px}
+.stat-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;margin-bottom:4px}
+.stat-label{font-size:13px;color:var(--muted);font-weight:500}
+.stat-change{font-size:12px;margin-top:8px;font-weight:600}
+.stat-change.up{color:var(--green)}.stat-change.down{color:var(--red)}
+
+/* ─── CARD ─── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.card-title{font-size:16px;font-weight:700}
+.card-actions{display:flex;align-items:center;gap:8px}
+
+/* ─── TABLE ─── */
+.table-wrap{overflow-x:auto;border-radius:var(--r2);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:var(--bg)}
+th{padding:12px 16px;text-align:left;font-weight:600;color:var(--muted);text-transform:uppercase;
+  font-size:11px;letter-spacing:.5px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:12px 16px;border-bottom:1px solid rgba(51,65,85,.4);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(30,41,59,.4)}
+.avatar-sm{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--p2));
+  display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.avatar-img{width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--border)}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge.active{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.25)}
+.badge.banned{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.badge.pending{background:rgba(245,158,11,.15);color:var(--yellow);border:1px solid rgba(245,158,11,.25)}
+.badge.approved{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.25)}
+.badge.rejected{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.badge.super_admin{background:rgba(123,47,247,.15);color:var(--p2);border:1px solid rgba(123,47,247,.25)}
+.badge.manager{background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.25)}
+.badge.support{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.25)}
+.badge.viewer{background:rgba(148,163,184,.15);color:var(--muted);border:1px solid rgba(148,163,184,.25)}
+.action-btns{display:flex;gap:6px;flex-wrap:wrap}
+
+/* ─── SEARCH / FILTER BAR ─── */
+.toolbar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.search-input{flex:1;min-width:200px;padding:10px 16px 10px 38px;
+  background:var(--card2);border:1px solid var(--border);border-radius:var(--r2);
+  color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;
+  outline:none;transition:var(--trans)}
+.search-input:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(123,47,247,.12)}
+.search-input::placeholder{color:var(--muted)}
+.search-wrap{position:relative;flex:1;min-width:200px}
+.search-wrap::before{content:'🔍';position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px}
+.select-filter{padding:10px 14px;background:var(--card2);border:1px solid var(--border);
+  border-radius:var(--r2);color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;
+  outline:none;cursor:pointer;transition:var(--trans)}
+.select-filter:focus{border-color:var(--p)}
+.select-filter option{background:var(--card2)}
+
+/* ─── MODAL ─── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);
+  z-index:800;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.5);
+  animation:modalIn .25s cubic-bezier(.34,1.56,.64,1)}
+.modal.modal-lg{max-width:740px}
+.modal.modal-xl{max-width:920px}
+@keyframes modalIn{from{transform:scale(.9) translateY(20px);opacity:0}to{transform:none;opacity:1}}
+.modal-header{padding:24px 24px 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-size:18px;font-weight:700}
+.modal-close{width:32px;height:32px;border-radius:50%;background:var(--card2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:var(--trans)}
+.modal-close:hover{background:var(--red);border-color:var(--red);color:#fff}
+.modal-body{padding:0 24px 24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+
+/* ─── FORM ELEMENTS INSIDE PANEL ─── */
+.panel-form .form-group{margin-bottom:16px}
+.panel-form label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.panel-input{width:100%;padding:11px 14px;background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--r3);color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:var(--trans)}
+.panel-input:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(123,47,247,.12)}
+.panel-input::placeholder{color:var(--muted)}
+textarea.panel-input{resize:vertical;min-height:90px}
+select.panel-input option{background:var(--card)}
+
+/* ─── TABS ─── */
+.tabs{display:flex;gap:4px;background:var(--bg);border-radius:var(--r2);padding:4px;margin-bottom:20px;border:1px solid var(--border)}
+.tab{padding:8px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);transition:var(--trans)}
+.tab.active{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff}
+.tab:hover:not(.active){color:var(--text)}
+
+/* ─── TOGGLE SWITCH ─── */
+.toggle-wrap{display:flex;align-items:center;gap:10px;cursor:pointer}
+.toggle{width:44px;height:24px;background:var(--border);border-radius:12px;position:relative;transition:var(--trans);cursor:pointer}
+.toggle::after{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:var(--trans)}
+.toggle.on{background:var(--p)}
+.toggle.on::after{left:23px}
+.toggle-label{font-size:13px;font-weight:500}
+
+/* ─── PAGINATION ─── */
+.pagination{display:flex;align-items:center;gap:6px;margin-top:16px;justify-content:flex-end}
+.page-btn{width:34px;height:34px;border-radius:8px;background:var(--card2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:600;transition:var(--trans)}
+.page-btn:hover,.page-btn.active{background:var(--p);border-color:var(--p);color:#fff}
+.page-info{font-size:13px;color:var(--muted);padding:0 8px}
+
+/* ─── SPINNER ─── */
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--p);
+  border-radius:50%;animation:spin .7s linear infinite}
+.loading-overlay{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;padding:60px;color:var(--muted);font-size:14px}
+
+/* ─── DETAIL ROW ─── */
+.detail-row{display:flex;border-bottom:1px solid var(--border);padding:10px 0;font-size:13px}
+.detail-row:last-child{border-bottom:none}
+.detail-label{color:var(--muted);min-width:140px;font-weight:500}
+.detail-val{color:var(--text);flex:1}
+
+/* ─── COIN PILL ─── */
+.coin-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(245,158,11,.12);
+  border:1px solid rgba(245,158,11,.25);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;color:var(--yellow)}
+
+/* ─── EMPTY STATE ─── */
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-state .empty-icon{font-size:48px;margin-bottom:12px;opacity:.4}
+.empty-state p{font-size:14px}
+
+/* ─── GRID 2 ─── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}.grid3{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.grid3{grid-template-columns:1fr}}
+
+/* ─── RESPONSIVE ─── */
+#menuToggle{display:none;width:38px;height:38px;border-radius:var(--r3);background:var(--card2);
+  border:1px solid var(--border);align-items:center;justify-content:center;cursor:pointer;font-size:18px}
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:90}
+@media(max-width:768px){
+  #menuToggle{display:flex}
+  #sidebar{position:fixed;left:-280px;z-index:95;height:100vh;transition:left .3s}
+  #sidebar.mobile-open{left:0}
+  #sidebar.collapsed{width:260px;min-width:260px}
+  #overlay.show{display:block}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .collapse-btn{display:none}
+  #content{padding:16px}
+}
+@media(max-width:480px){.stats-grid{grid-template-columns:1fr}}
+
+/* ─── SCROLLBAR INSIDE MODAL ─── */
+.modal::-webkit-scrollbar{width:4px}
+.modal::-webkit-scrollbar-thumb{background:var(--p);border-radius:4px}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toastContainer"></div>
+
+<!-- ACCESS DENIED -->
+<div id="accessDenied">
+  <div style="font-size:64px">🚫</div>
+  <h1>ACCESS DENIED</h1>
+  <p>You are not authorized to access this panel.</p>
+  <button class="btn btn-primary" onclick="showLogin()" style="margin-top:16px">Back to Login</button>
+</div>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="icon">▶</div>
+      <h1>Watch to Earn</h1>
+      <p>Super Admin Panel</p>
+    </div>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="loginEmail" class="form-control" placeholder="admin@example.com" autocomplete="email"/>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <div class="input-wrap">
+        <input type="password" id="loginPass" class="form-control" placeholder="••••••••" autocomplete="current-password"/>
+        <button class="eye-btn" onclick="togglePwd()" id="eyeBtn">👁</button>
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="checkbox-wrap"><input type="checkbox" id="rememberMe"/> Remember me</label>
+      <a class="forgot-link" onclick="forgotPassword()">Forgot password?</a>
+    </div>
+    <button class="btn btn-primary btn-full" id="loginBtn" onclick="doLogin()">
+      <span id="loginBtnText">Sign In</span>
+    </button>
+    <div id="loginError" style="margin-top:14px;font-size:13px;color:var(--red);text-align:center;display:none"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appShell" class="flex">
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">▶</div>
+      <span class="sidebar-brand">WatchToEarn</span>
+    </div>
+    <div class="collapse-btn" onclick="toggleSidebar()" id="collapseBtn">◀</div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">MAIN</div>
+      <div class="nav-item active" onclick="navigate('dashboard')" id="nav-dashboard"><span class="icon">📊</span><span>Dashboard</span></div>
+      <div class="nav-item" onclick="navigate('users')" id="nav-users"><span class="icon">👥</span><span>User Management</span><span class="nav-badge" id="badge-users" style="display:none">0</span></div>
+      <div class="nav-item" onclick="navigate('wallet')" id="nav-wallet"><span class="icon">💰</span><span>Wallet Management</span></div>
+      <div class="nav-section-title">TRANSACTIONS</div>
+      <div class="nav-item" onclick="navigate('transactions')" id="nav-transactions"><span class="icon">💳</span><span>Transactions</span></div>
+      <div class="nav-item" onclick="navigate('redeem')" id="nav-redeem"><span class="icon">🎁</span><span>Redeem Requests</span><span class="nav-badge" id="badge-redeem">0</span></div>
+      <div class="nav-section-title">CONTENT</div>
+      <div class="nav-item" onclick="navigate('dailybonus')" id="nav-dailybonus"><span class="icon">🗓</span><span>Daily Bonus</span></div>
+      <div class="nav-item" onclick="navigate('spinwheel')" id="nav-spinwheel"><span class="icon">🎡</span><span>Spin Wheel</span></div>
+      <div class="nav-item" onclick="navigate('referrals')" id="nav-referrals"><span class="icon">🔗</span><span>Referrals</span></div>
+      <div class="nav-item" onclick="navigate('notifications')" id="nav-notifications"><span class="icon">🔔</span><span>Notifications</span></div>
+      <div class="nav-item" onclick="navigate('banners')" id="nav-banners"><span class="icon">🖼</span><span>Banners</span></div>
+      <div class="nav-section-title">SYSTEM</div>
+      <div class="nav-item" onclick="navigate('settings')" id="nav-settings"><span class="icon">⚙️</span><span>App Settings</span></div>
+      <div class="nav-item" onclick="navigate('forceupdate')" id="nav-forceupdate"><span class="icon">🔄</span><span>Force Update</span></div>
+      <div class="nav-item" onclick="navigate('admins')" id="nav-admins"><span class="icon">🛡</span><span>Admin Management</span></div>
+      <div class="nav-item" onclick="navigate('logs')" id="nav-logs"><span class="icon">📋</span><span>Activity Logs</span></div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="admin-profile">
+        <div class="admin-avatar" id="sidebarAvatar">A</div>
+        <div class="admin-info">
+          <div class="admin-name" id="sidebarName">Admin</div>
+          <div class="admin-role" id="sidebarRole">super_admin</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="overlay" onclick="closeMobileSidebar()"></div>
+
+  <!-- MAIN -->
+  <div id="mainArea">
+    <div id="topbar">
+      <div id="menuToggle" onclick="openMobileSidebar()">☰</div>
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-actions">
+        <div class="date-chip" id="dateChip">—</div>
+        <div class="icon-btn" onclick="navigate('notifications')" title="Notifications">
+          🔔<div class="notif-dot" id="notifDot" style="display:none"></div>
+        </div>
+        <button class="btn btn-sm btn-danger" onclick="confirmLogout()">⏏ Logout</button>
+      </div>
+    </div>
+    <div id="content">
+
+      <!-- ─── DASHBOARD ─── -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header">
+          <div class="page-title">Dashboard</div>
+          <div class="page-sub">Welcome back, <span id="dashAdminName">Admin</span>! Here's what's happening.</div>
+        </div>
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card purple"><div class="stat-icon">👥</div><div class="stat-val" id="stat-totalUsers">—</div><div class="stat-label">Total Users</div></div>
+          <div class="stat-card green"><div class="stat-icon">✅</div><div class="stat-val" id="stat-activeUsers">—</div><div class="stat-label">Active Users</div></div>
+          <div class="stat-card blue"><div class="stat-icon">🪙</div><div class="stat-val" id="stat-totalCoins">—</div><div class="stat-label">Total Coins Distributed</div></div>
+          <div class="stat-card yellow"><div class="stat-icon">🎁</div><div class="stat-val" id="stat-rewardClaims">—</div><div class="stat-label">Total Reward Claims</div></div>
+          <div class="stat-card yellow"><div class="stat-icon">⏳</div><div class="stat-val" id="stat-pendingRedeem">—</div><div class="stat-label">Pending Redeems</div></div>
+          <div class="stat-card green"><div class="stat-icon">✔️</div><div class="stat-val" id="stat-approvedRedeem">—</div><div class="stat-label">Approved Redeems</div></div>
+          <div class="stat-card red"><div class="stat-icon">❌</div><div class="stat-val" id="stat-rejectedRedeem">—</div><div class="stat-label">Rejected Redeems</div></div>
+          <div class="stat-card purple"><div class="stat-icon">📅</div><div class="stat-val" id="stat-todayEarnings">—</div><div class="stat-label">Today's Coin Earnings</div></div>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Recent Redeems</div><button class="btn btn-sm btn-outline" onclick="navigate('redeem')">View All</button></div>
+            <div id="recentRedeems"><div class="loading-overlay"><div class="spinner"></div></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">New Users</div><button class="btn btn-sm btn-outline" onclick="navigate('users')">View All</button></div>
+            <div id="recentUsers"><div class="loading-overlay"><div class="spinner"></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── USERS ─── -->
+      <div class="page" id="page-users">
+        <div class="page-header flex jb ac">
+          <div><div class="page-title">User Management</div><div class="page-sub">Manage all registered users</div></div>
+        </div>
+        <div class="card">
+          <div class="toolbar">
+            <div class="search-wrap"><input class="search-input" id="userSearch" placeholder="Search by name, email, UID..." oninput="filterUsers()"/></div>
+            <select class="select-filter" id="userStatusFilter" onchange="filterUsers()">
+              <option value="">All Status</option><option value="active">Active</option><option value="banned">Banned</option>
+            </select>
+            <button class="btn btn-sm btn-outline" onclick="exportUsersCSV()">⬇ CSV</button>
+          </div>
+          <div class="table-wrap"><table><thead><tr>
+            <th>User</th><th>Email</th><th>UID</th><th>Coins</th><th>Referral</th><th>Joined</th><th>Status</th><th>Actions</th>
+          </tr></thead><tbody id="usersTableBody"><tr><td colspan="8"><div class="loading-overlay"><div class="spinner"></div></div></td></tr></tbody></table></div>
+          <div class="pagination" id="usersPagination"></div>
+        </div>
+      </div>
+
+      <!-- ─── WALLET ─── -->
+      <div class="page" id="page-wallet">
+        <div class="page-header"><div class="page-title">Wallet Management</div><div class="page-sub">Manage user coin balances</div></div>
+        <div class="card" style="max-width:520px;margin-bottom:24px">
+          <div class="card-title" style="margin-bottom:16px">Search User Wallet</div>
+          <div class="panel-form">
+            <div class="form-group"><label>Search by UID or Email</label><input class="panel-input" id="walletSearch" placeholder="Enter UID or email..."/></div>
+            <button class="btn btn-primary btn-sm" onclick="searchWallet()">🔍 Search</button>
+          </div>
+          <div id="walletResult" style="margin-top:20px"></div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:16px">Wallet Logs</div>
+          <div id="walletLogsTable"><div class="loading-overlay"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+
+      <!-- ─── TRANSACTIONS ─── -->
+      <div class="page" id="page-transactions">
+        <div class="page-header"><div class="page-title">Transactions</div><div class="page-sub">All coin transactions across users</div></div>
+        <div class="card">
+          <div class="toolbar">
+            <div class="search-wrap"><input class="search-input" id="txSearch" placeholder="Search user/type..." oninput="filterTransactions()"/></div>
+            <select class="select-filter" id="txTypeFilter" onchange="filterTransactions()">
+              <option value="">All Types</option><option value="credit">Credit</option><option value="debit">Debit</option>
+              <option value="ad_reward">Ad Reward</option><option value="daily_bonus">Daily Bonus</option>
+              <option value="referral">Referral</option><option value="spin">Spin</option><option value="redeem">Redeem</option>
+            </select>
+            <input type="date" class="select-filter" id="txDateFilter" onchange="filterTransactions()"/>
+            <button class="btn btn-sm btn-outline" onclick="exportTxCSV()">⬇ CSV</button>
+          </div>
+          <div class="table-wrap"><table><thead><tr>
+            <th>User</th><th>Type</th><th>Amount</th><th>Description</th><th>Date</th>
+          </tr></thead><tbody id="txTableBody"><tr><td colspan="5"><div class="loading-overlay"><div class="spinner"></div></div></td></tr></tbody></table></div>
+          <div class="pagination" id="txPagination"></div>
+        </div>
+      </div>
+
+      <!-- ─── DAILY BONUS ─── -->
+      <div class="page" id="page-dailybonus">
+        <div class="page-header"><div class="page-title">Daily Bonus Management</div><div class="page-sub">Configure daily check-in rewards</div></div>
+        <div class="card" style="max-width:500px">
+          <div class="panel-form" id="dailyBonusForm">
+            <div class="loading-overlay"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── SPIN WHEEL ─── -->
+      <div class="page" id="page-spinwheel">
+        <div class="page-header"><div class="page-title">Spin Wheel Management</div><div class="page-sub">Configure spin rewards</div></div>
+        <div class="card" style="max-width:600px">
+          <div id="spinWheelForm"><div class="loading-overlay"><div class="spinner"></div></div></div>
+          <div style="margin-top:20px">
+            <button class="btn btn-primary btn-sm" onclick="addSpinReward()">➕ Add Reward</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── REFERRALS ─── -->
+      <div class="page" id="page-referrals">
+        <div class="page-header"><div class="page-title">Referral Management</div><div class="page-sub">View all referral activity</div></div>
+        <div class="card">
+          <div class="toolbar">
+            <div class="search-wrap"><input class="search-input" id="refSearch" placeholder="Search inviter/invited..." oninput="filterReferrals()"/></div>
+            <button class="btn btn-sm btn-outline" onclick="exportRefCSV()">⬇ CSV</button>
+          </div>
+          <div class="table-wrap"><table><thead><tr>
+            <th>Inviter</th><th>Invited User</th><th>Reward Given</th><th>Date</th>
+          </tr></thead><tbody id="refTableBody"><tr><td colspan="4"><div class="loading-overlay"><div class="spinner"></div></div></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ─── REDEEM ─── -->
+      <div class="page" id="page-redeem">
+        <div class="page-header"><div class="page-title">Redeem Requests</div><div class="page-sub">Manage user withdrawal requests</div></div>
+        <div class="card">
+          <div class="toolbar">
+            <div class="search-wrap"><input class="search-input" id="redeemSearch" placeholder="Search user/UPI..." oninput="filterRedeems()"/></div>
+            <select class="select-filter" id="redeemStatusFilter" onchange="filterRedeems()">
+              <option value="">All Status</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option>
+            </select>
+            <button class="btn btn-sm btn-outline" onclick="exportRedeemCSV()">⬇ CSV</button>
+          </div>
+          <div class="table-wrap"><table><thead><tr>
+            <th>User</th><th>Amount (₹)</th><th>UPI ID</th><th>Requested</th><th>Status</th><th>Actions</th>
+          </tr></thead><tbody id="redeemTableBody"><tr><td colspan="6"><div class="loading-overlay"><div class="spinner"></div></div></td></tr></tbody></table></div>
+          <div class="pagination" id="redeemPagination"></div>
+        </div>
+      </div>
+
+      <!-- ─── NOTIFICATIONS ─── -->
+      <div class="page" id="page-notifications">
+        <div class="page-header"><div class="page-title">Notification Management</div><div class="page-sub">Create and manage push notifications</div></div>
+        <div class="grid2" style="align-items:start">
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px">Create Notification</div>
+            <div class="panel-form">
+              <div class="form-group"><label>Title</label><input class="panel-input" id="notifTitle" placeholder="Notification title..."/></div>
+              <div class="form-group"><label>Message</label><textarea class="panel-input" id="notifMsg" placeholder="Notification message..."></textarea></div>
+              <div class="form-group"><label>Type</label>
+                <select class="panel-input" id="notifType">
+                  <option value="general">General</option><option value="reward">Reward</option>
+                  <option value="maintenance">Maintenance</option><option value="update">Update</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" onclick="sendNotification()">🔔 Send Notification</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px">Sent Notifications</div>
+            <div id="notifList"><div class="loading-overlay"><div class="spinner"></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── BANNERS ─── -->
+      <div class="page" id="page-banners">
+        <div class="page-header"><div class="page-title">Banner Management</div><div class="page-sub">Control app banners</div></div>
+        <div class="grid2" style="align-items:start">
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px">Add Banner</div>
+            <div class="panel-form">
+              <div class="form-group"><label>Banner Title</label><input class="panel-input" id="bannerTitle" placeholder="e.g. New Feature!"/></div>
+              <div class="form-group"><label>Image URL</label><input class="panel-input" id="bannerUrl" placeholder="https://..."/></div>
+              <div class="form-group"><label>Link URL (optional)</label><input class="panel-input" id="bannerLink" placeholder="https://..."/></div>
+              <div class="form-group flex ac gap12">
+                <div class="toggle-wrap"><div class="toggle on" id="bannerActive" onclick="toggleElem(this)"></div><span class="toggle-label">Enabled</span></div>
+              </div>
+              <button class="btn btn-primary" onclick="addBanner()">💾 Save Banner</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px">Active Banners</div>
+            <div id="bannerList"><div class="loading-overlay"><div class="spinner"></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── SETTINGS ─── -->
+      <div class="page" id="page-settings">
+        <div class="page-header"><div class="page-title">App Settings</div><div class="page-sub">Configure global application settings</div></div>
+        <div class="card" style="max-width:600px">
+          <div class="panel-form" id="settingsForm"><div class="loading-overlay"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+
+      <!-- ─── FORCE UPDATE ─── -->
+      <div class="page" id="page-forceupdate">
+        <div class="page-header"><div class="page-title">Force Update</div><div class="page-sub">Manage app version and update prompts</div></div>
+        <div class="card" style="max-width:600px">
+          <div class="panel-form" id="forceUpdateForm"><div class="loading-overlay"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+
+      <!-- ─── ADMINS ─── -->
+      <div class="page" id="page-admins">
+        <div class="page-header"><div class="page-title">Admin Management</div><div class="page-sub">Manage admin access (Super Admin only)</div></div>
+        <div class="grid2" style="align-items:start">
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px">Add New Admin</div>
+            <div class="panel-form">
+              <div class="form-group"><label>Email</label><input class="panel-input" id="newAdminEmail" placeholder="admin@example.com"/></div>
+              <div class="form-group"><label>Role</label>
+                <select class="panel-input" id="newAdminRole">
+                  <option value="manager">Manager</option><option value="support">Support</option><option value="viewer">Viewer</option><option value="super_admin">Super Admin</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" onclick="addAdmin()">➕ Add Admin</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px">Admin List</div>
+            <div id="adminList"><div class="loading-overlay"><div class="spinner"></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── LOGS ─── -->
+      <div class="page" id="page-logs">
+        <div class="page-header"><div class="page-title">Activity Logs</div><div class="page-sub">Track all admin actions</div></div>
+        <div class="card">
+          <div class="toolbar">
+            <div class="search-wrap"><input class="search-input" id="logsSearch" placeholder="Search logs..." oninput="filterLogs()"/></div>
+          </div>
+          <div class="table-wrap"><table><thead><tr>
+            <th>Action</th><th>Admin</th><th>Details</th><th>Date & Time</th>
+          </tr></thead><tbody id="logsTableBody"><tr><td colspan="4"><div class="loading-overlay"><div class="spinner"></div></div></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /mainArea -->
+</div><!-- /appShell -->
+
+<!-- ─── MODALS ─── -->
+
+<!-- User Details Modal -->
+<div class="modal-overlay" id="userDetailsModal">
+  <div class="modal modal-xl">
+    <div class="modal-header">
+      <div class="modal-title">User Details</div>
+      <div class="modal-close" onclick="closeModal('userDetailsModal')">✕</div>
+    </div>
+    <div class="modal-body" id="userDetailsBody"></div>
+  </div>
+</div>
+
+<!-- Edit Coins Modal -->
+<div class="modal-overlay" id="editCoinsModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="editCoinsTitle">Edit Coins</div>
+      <div class="modal-close" onclick="closeModal('editCoinsModal')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="panel-form">
+        <div class="form-group"><label>Amount</label><input class="panel-input" type="number" id="editCoinsAmount" placeholder="Enter coin amount..." min="0"/></div>
+        <div class="form-group"><label>Reason</label><input class="panel-input" id="editCoinsReason" placeholder="Reason for adjustment..."/></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('editCoinsModal')">Cancel</button>
+      <button class="btn btn-primary" id="editCoinsConfirmBtn" onclick="confirmEditCoins()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Redeem Details Modal -->
+<div class="modal-overlay" id="redeemDetailsModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Redeem Request Details</div>
+      <div class="modal-close" onclick="closeModal('redeemDetailsModal')">✕</div>
+    </div>
+    <div class="modal-body" id="redeemDetailsBody"></div>
+    <div class="modal-footer" id="redeemDetailsFooter"></div>
+  </div>
+</div>
+
+<!-- Confirm Dialog -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <div class="modal-title" id="confirmTitle">Confirm</div>
+      <div class="modal-close" onclick="closeModal('confirmModal')">✕</div>
+    </div>
+    <div class="modal-body"><p id="confirmMsg" style="color:var(--muted);font-size:14px"></p></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="btn btn-primary" id="confirmOkBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── FIREBASE + APP JS ─── -->
+<script type="module">
+// ═══════════════════════════════════════════════════════
+//  FIREBASE CONFIG — REPLACE WITH YOUR OWN
+// ═══════════════════════════════════════════════════════
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import{getAuth,signInWithEmailAndPassword,signOut,sendPasswordResetEmail,onAuthStateChanged}
+  from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import{getDatabase,ref,get,set,update,remove,push,onValue,query,orderByChild,limitToLast,equalTo}
+  from"https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAP5W62Prhd9DPjg1qZw3xtIe24I2drsnw",
+  authDomain: "watch-to-earn-73c4d.firebaseapp.com",
+  databaseURL: "https://watch-to-earn-73c4d-default-rtdb.firebaseio.com",
+  projectId: "watch-to-earn-73c4d",
+  storageBucket: "watch-to-earn-73c4d.firebasestorage.app",
+  messagingSenderId: "912228297105",
+  appId: "1:912228297105:web:6036059748d63a9f0a5230"
+};
+
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getDatabase(app);
+
+// ═══════════════════════════════════════════════════════
+//  GLOBAL STATE
+// ═══════════════════════════════════════════════════════
+let currentAdmin=null;
+let allUsers=[],allTx=[],allRedeems=[],allRefs=[],allLogs=[];
+let editCoinsUid=null,editCoinsMode=null;
+let usersPage=1,txPage=1,redeemPage=1;
+const PAGE_SIZE=20;
+
+// ═══════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════
+window.toast=(msg,type='info',dur=3500)=>{
+  const c=document.getElementById('toastContainer');
+  const el=document.createElement('div');
+  el.className=`toast ${type}`;el.textContent=msg;c.appendChild(el);
+  setTimeout(()=>{el.style.animation='slideOut .3s ease forwards';setTimeout(()=>el.remove(),300)},dur);
+};
+
+// ═══════════════════════════════════════════════════════
+//  AUTH FLOW
+// ═══════════════════════════════════════════════════════
+onAuthStateChanged(auth,async user=>{
+  if(user){
+    try{
+      const snap=await get(ref(db,`admins/${user.uid}`));
+      if(!snap.exists()){showAccessDenied();return;}
+      const adminData=snap.val();
+      if(!['super_admin','manager','support','viewer'].includes(adminData.role)){showAccessDenied();return;}
+      currentAdmin={uid:user.uid,...adminData,email:user.email};
+      initPanel();
+    }catch(e){console.error(e);showLogin();}
+  }else{
+    showLogin();
+  }
+});
+
+window.showLogin=()=>{
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('appShell').style.display='none';
+  document.getElementById('accessDenied').style.display='none';
+};
+window.showAccessDenied=()=>{
+  document.getElementById('accessDenied').style.display='flex';
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('appShell').style.display='none';
+};
+
+window.doLogin=async()=>{
+  const email=document.getElementById('loginEmail').value.trim();
+  const pass=document.getElementById('loginPass').value;
+  const btn=document.getElementById('loginBtn');
+  const errEl=document.getElementById('loginError');
+  errEl.style.display='none';
+  if(!email||!pass){errEl.textContent='Please enter email and password.';errEl.style.display='block';return;}
+  btn.disabled=true;
+  document.getElementById('loginBtnText').innerHTML='<span class="login-spinner"></span>';
+  try{
+    await signInWithEmailAndPassword(auth,email,pass);
+    if(document.getElementById('rememberMe').checked){localStorage.setItem('w2e_remember',email);}
+  }catch(e){
+    errEl.textContent=friendlyAuthError(e.code);errEl.style.display='block';
+    btn.disabled=false;document.getElementById('loginBtnText').textContent='Sign In';
+  }
+};
+
+function friendlyAuthError(code){
+  const m={
+    'auth/invalid-email':'Invalid email address.',
+    'auth/user-not-found':'No account found with this email.',
+    'auth/wrong-password':'Incorrect password.',
+    'auth/too-many-requests':'Too many attempts. Try again later.',
+    'auth/invalid-credential':'Invalid credentials. Please try again.',
+    'auth/network-request-failed':'Network error. Check your connection.'
+  };
+  return m[code]||'Login failed. Please try again.';
+}
+
+window.forgotPassword=async()=>{
+  const email=document.getElementById('loginEmail').value.trim();
+  if(!email){toast('Enter your email first.','warning');return;}
+  try{await sendPasswordResetEmail(auth,email);toast('Password reset email sent!','success');}
+  catch(e){toast('Error: '+e.message,'error');}
+};
+
+window.confirmLogout=()=>confirm('Are you sure you want to logout?')&&doLogout();
+async function doLogout(){
+  await signOut(auth);
+  currentAdmin=null;
+  showLogin();
+  toast('Logged out.','info');
+}
+
+window.togglePwd=()=>{
+  const inp=document.getElementById('loginPass');
+  inp.type=inp.type==='password'?'text':'password';
+};
+
+// ═══════════════════════════════════════════════════════
+//  PANEL INIT
+// ═══════════════════════════════════════════════════════
+function initPanel(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('appShell').style.display='flex';
+  // Admin info
+  const name=currentAdmin.displayName||currentAdmin.email.split('@')[0];
+  document.getElementById('sidebarName').textContent=name;
+  document.getElementById('sidebarRole').textContent=currentAdmin.role||'admin';
+  document.getElementById('sidebarAvatar').textContent=name[0].toUpperCase();
+  document.getElementById('dashAdminName').textContent=name;
+  // Date
+  document.getElementById('dateChip').textContent=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+  // Load data
+  loadDashboardStats();
+  loadUsers();
+  loadTransactions();
+  loadRedeems();
+  loadReferrals();
+  loadLogs();
+  loadDailyBonus();
+  loadSpinWheel();
+  loadSettings();
+  loadForceUpdate();
+  loadAdmins();
+  loadNotifications();
+  loadBanners();
+  loadWalletLogs();
+  // Super admin check
+  if(currentAdmin.role!=='super_admin'){
+    document.getElementById('nav-admins').style.display='none';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════
+const pageTitles={
+  dashboard:'Dashboard',users:'User Management',wallet:'Wallet Management',
+  transactions:'Transactions',redeem:'Redeem Requests',dailybonus:'Daily Bonus',
+  spinwheel:'Spin Wheel',referrals:'Referrals',notifications:'Notifications',
+  banners:'Banners',settings:'App Settings',forceupdate:'Force Update',
+  admins:'Admin Management',logs:'Activity Logs'
+};
+window.navigate=id=>{
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+id);
+  if(pg)pg.classList.add('active');
+  const nav=document.getElementById('nav-'+id);
+  if(nav)nav.classList.add('active');
+  document.getElementById('topbarTitle').textContent=pageTitles[id]||id;
+  closeMobileSidebar();
+};
+
+// ═══════════════════════════════════════════════════════
+//  SIDEBAR TOGGLE
+// ═══════════════════════════════════════════════════════
+window.toggleSidebar=()=>{
+  const s=document.getElementById('sidebar');
+  const b=document.getElementById('collapseBtn');
+  s.classList.toggle('collapsed');
+  b.textContent=s.classList.contains('collapsed')?'▶':'◀';
+};
+window.openMobileSidebar=()=>{
+  document.getElementById('sidebar').classList.add('mobile-open');
+  document.getElementById('overlay').classList.add('show');
+};
+window.closeMobileSidebar=()=>{
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('overlay').classList.remove('show');
+};
+
+// ═══════════════════════════════════════════════════════
+//  MODALS
+// ═══════════════════════════════════════════════════════
+window.openModal=id=>document.getElementById(id).classList.add('open');
+window.closeModal=id=>document.getElementById(id).classList.remove('open');
+window.confirmDialog=(title,msg,onOk,btnClass='btn-primary')=>{
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmMsg').textContent=msg;
+  const btn=document.getElementById('confirmOkBtn');
+  btn.className=`btn ${btnClass}`;
+  btn.onclick=()=>{closeModal('confirmModal');onOk();};
+  openModal('confirmModal');
+};
+
+// ═══════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════
+const fmt=n=>Number(n||0).toLocaleString('en-IN');
+const fmtDate=ts=>{
+  if(!ts)return'—';
+  const d=new Date(typeof ts==='number'?ts:ts);
+  return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+};
+const fmtDateTime=ts=>{
+  if(!ts)return'—';
+  const d=new Date(typeof ts==='number'?ts:ts);
+  return d.toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+};
+function todayStart(){const d=new Date();d.setHours(0,0,0,0);return d.getTime();}
+
+async function logAction(action,details=''){
+  if(!currentAdmin)return;
+  await push(ref(db,'logs'),{
+    action,details,adminEmail:currentAdmin.email,adminUid:currentAdmin.uid,
+    timestamp:Date.now()
+  });
+}
+
+window.toggleElem=el=>el.classList.toggle('on');
+window.exportCSV=(headers,rows,filename)=>{
+  const csv=[headers,...rows].map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=filename;a.click();
+};
+
+// ═══════════════════════════════════════════════════════
+//  DASHBOARD STATS
+// ═══════════════════════════════════════════════════════
+async function loadDashboardStats(){
+  try{
+    const usersSnap=await get(ref(db,'users'));
+    const txSnap=await get(ref(db,'transactions'));
+    const redeemSnap=await get(ref(db,'redeemRequests'));
+    let total=0,active=0,coins=0,claims=0,pending=0,approved=0,rejected=0,todayCoins=0;
+    const today=todayStart();
+    if(usersSnap.exists()){
+      const d=usersSnap.val();
+      total=Object.keys(d).length;
+      Object.values(d).forEach(u=>{if(u.status!=='banned')active++;});
+    }
+    if(txSnap.exists()){
+      Object.values(txSnap.val()).forEach(t=>{
+        if(t.type==='credit'||t.amount>0){coins+=Number(t.amount||0);claims++;}
+        if(t.timestamp>=today)todayCoins+=Number(t.amount||0);
+      });
+    }
+    if(redeemSnap.exists()){
+      Object.values(redeemSnap.val()).forEach(r=>{
+        if(r.status==='pending')pending++;
+        else if(r.status==='approved')approved++;
+        else if(r.status==='rejected')rejected++;
+      });
+    }
+    document.getElementById('stat-totalUsers').textContent=fmt(total);
+    document.getElementById('stat-activeUsers').textContent=fmt(active);
+    document.getElementById('stat-totalCoins').textContent=fmt(coins);
+    document.getElementById('stat-rewardClaims').textContent=fmt(claims);
+    document.getElementById('stat-pendingRedeem').textContent=fmt(pending);
+    document.getElementById('stat-approvedRedeem').textContent=fmt(approved);
+    document.getElementById('stat-rejectedRedeem').textContent=fmt(rejected);
+    document.getElementById('stat-todayEarnings').textContent=fmt(todayCoins);
+    document.getElementById('badge-redeem').textContent=pending;
+    if(pending>0)document.getElementById('notifDot').style.display='block';
+  }catch(e){console.error(e);}
+  loadRecentRedeems();
+  loadRecentUsers();
+}
+
+async function loadRecentRedeems(){
+  const el=document.getElementById('recentRedeems');
+  try{
+    const snap=await get(ref(db,'redeemRequests'));
+    if(!snap.exists()){el.innerHTML='<div class="empty-state"><div class="empty-icon">🎁</div><p>No redeem requests yet</p></div>';return;}
+    const rows=Object.entries(snap.val()).map(([k,v])=>({...v,id:k}))
+      .sort((a,b)=>b.timestamp-a.timestamp).slice(0,5);
+    el.innerHTML=rows.map(r=>`
+      <div class="flex ac jb" style="padding:10px 0;border-bottom:1px solid var(--border)">
+        <div><div style="font-size:13px;font-weight:600">${r.userName||r.userId||'User'}</div>
+          <div style="font-size:11px;color:var(--muted)">${r.upiId||'—'}</div></div>
+        <div class="flex ac gap8"><span style="font-weight:700">₹${fmt(r.amount)}</span><span class="badge ${r.status}">${r.status}</span></div>
+      </div>`).join('');
+  }catch(e){el.innerHTML='<p style="color:var(--muted);font-size:13px">Error loading data.</p>';}
+}
+
+async function loadRecentUsers(){
+  const el=document.getElementById('recentUsers');
+  try{
+    const snap=await get(ref(db,'users'));
+    if(!snap.exists()){el.innerHTML='<div class="empty-state"><div class="empty-icon">👥</div><p>No users yet</p></div>';return;}
+    const rows=Object.entries(snap.val()).map(([k,v])=>({...v,uid:k}))
+      .sort((a,b)=>b.joinDate-a.joinDate).slice(0,5);
+    el.innerHTML=rows.map(u=>`
+      <div class="flex ac gap12" style="padding:10px 0;border-bottom:1px solid var(--border)">
+        <div class="avatar-sm">${(u.name||u.email||'U')[0].toUpperCase()}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.name||u.email||'—'}</div>
+          <div style="font-size:11px;color:var(--muted)">${fmtDate(u.joinDate)}</div>
+        </div>
+        <div class="coin-pill">🪙 ${fmt(u.coins)}</div>
+      </div>`).join('');
+  }catch(e){el.innerHTML='<p style="color:var(--muted);font-size:13px">Error loading data.</p>';}
+}
+
+// ═══════════════════════════════════════════════════════
+//  USERS
+// ═══════════════════════════════════════════════════════
+async function loadUsers(){
+  try{
+    const snap=await get(ref(db,'users'));
+    allUsers=snap.exists()?Object.entries(snap.val()).map(([k,v])=>({...v,uid:k})):[];
+    renderUsers();
+  }catch(e){document.getElementById('usersTableBody').innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--red)">Error loading users.</td></tr>';}
+}
+
+function renderUsers(){
+  const search=document.getElementById('userSearch').value.toLowerCase();
+  const status=document.getElementById('userStatusFilter').value;
+  let rows=allUsers.filter(u=>{
+    const m=!search||(u.name||'').toLowerCase().includes(search)||(u.email||'').toLowerCase().includes(search)||(u.uid||'').toLowerCase().includes(search);
+    const s=!status||u.status===status;
+    return m&&s;
+  });
+  const total=rows.length;
+  const totalPages=Math.max(1,Math.ceil(total/PAGE_SIZE));
+  if(usersPage>totalPages)usersPage=1;
+  const slice=rows.slice((usersPage-1)*PAGE_SIZE,usersPage*PAGE_SIZE);
+  const tbody=document.getElementById('usersTableBody');
+  if(!slice.length){tbody.innerHTML='<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">👥</div><p>No users found</p></div></td></tr>';renderPagination('usersPagination',totalPages,usersPage,p=>{usersPage=p;renderUsers();});return;}
+  tbody.innerHTML=slice.map(u=>`
+    <tr>
+      <td><div class="flex ac gap8"><div class="avatar-sm">${(u.name||u.email||'U')[0].toUpperCase()}</div>${u.name||'—'}</div></td>
+      <td class="ellipsis" style="max-width:180px">${u.email||'—'}</td>
+      <td><code style="font-size:11px;color:var(--muted)">${u.uid.substring(0,12)}…</code></td>
+      <td><span class="coin-pill">🪙 ${fmt(u.coins)}</span></td>
+      <td><code style="font-size:12px">${u.referralCode||'—'}</code></td>
+      <td style="color:var(--muted);font-size:12px">${fmtDate(u.joinDate)}</td>
+      <td><span class="badge ${u.status||'active'}">${u.status||'active'}</span></td>
+      <td><div class="action-btns">
+        <button class="btn btn-sm btn-info" onclick="viewUser('${u.uid}')">👁</button>
+        <button class="btn btn-sm btn-success" onclick="openAddCoins('${u.uid}','${u.name||u.email||'User'}')">+🪙</button>
+        <button class="btn btn-sm btn-warning" onclick="openRemoveCoins('${u.uid}','${u.name||u.email||'User'}')">-🪙</button>
+        ${u.status==='banned'
+          ?`<button class="btn btn-sm btn-success" onclick="setBanUser('${u.uid}',false)">✔ Unban</button>`
+          :`<button class="btn btn-sm btn-danger" onclick="setBanUser('${u.uid}',true)">🚫 Ban</button>`}
+        <button class="btn btn-sm btn-danger" onclick="deleteUser('${u.uid}')">🗑</button>
+      </div></td>
+    </tr>`).join('');
+  renderPagination('usersPagination',totalPages,usersPage,p=>{usersPage=p;renderUsers();});
+}
+window.filterUsers=()=>{usersPage=1;renderUsers();};
+
+window.viewUser=async uid=>{
+  const u=allUsers.find(u=>u.uid===uid);
+  if(!u)return;
+  const [txSnap,redeemSnap,refSnap]=await Promise.all([
+    get(ref(db,'transactions')),get(ref(db,'redeemRequests')),get(ref(db,'referrals'))
+  ]);
+  const txs=txSnap.exists()?Object.values(txSnap.val()).filter(t=>t.userId===uid).sort((a,b)=>b.timestamp-a.timestamp).slice(0,10):[];
+  const redeems=redeemSnap.exists()?Object.values(redeemSnap.val()).filter(r=>r.userId===uid).sort((a,b)=>b.timestamp-a.timestamp).slice(0,10):[];
+  const refs=refSnap.exists()?Object.values(refSnap.val()).filter(r=>r.inviterId===uid||r.invitedId===uid).slice(0,10):[];
+  document.getElementById('userDetailsBody').innerHTML=`
+    <div class="flex ac gap16" style="margin-bottom:24px">
+      <div class="avatar-sm" style="width:56px;height:56px;font-size:22px;border-radius:16px">${(u.name||u.email||'U')[0].toUpperCase()}</div>
+      <div><div style="font-size:18px;font-weight:700">${u.name||'—'}</div>
+        <div style="color:var(--muted);font-size:13px">${u.email||'—'}</div>
+        <span class="badge ${u.status||'active'}">${u.status||'active'}</span></div>
+      <div style="margin-left:auto"><div class="coin-pill" style="font-size:16px;padding:6px 16px">🪙 ${fmt(u.coins)}</div></div>
+    </div>
+    <div class="tabs" style="margin-bottom:16px">
+      <div class="tab active" onclick="switchUserTab('info',this)">Info</div>
+      <div class="tab" onclick="switchUserTab('tx',this)">Transactions</div>
+      <div class="tab" onclick="switchUserTab('redeem',this)">Redeem History</div>
+      <div class="tab" onclick="switchUserTab('refs',this)">Referrals</div>
+    </div>
+    <div id="userTab-info">
+      <div class="detail-row"><span class="detail-label">UID</span><span class="detail-val"><code>${u.uid}</code></span></div>
+      <div class="detail-row"><span class="detail-label">Email</span><span class="detail-val">${u.email||'—'}</span></div>
+      <div class="detail-row"><span class="detail-label">Name</span><span class="detail-val">${u.name||'—'}</span></div>
+      <div class="detail-row"><span class="detail-label">Coins</span><span class="detail-val">${fmt(u.coins)}</span></div>
+      <div class="detail-row"><span class="detail-label">Referral Code</span><span class="detail-val"><code>${u.referralCode||'—'}</code></span></div>
+      <div class="detail-row"><span class="detail-label">Join Date</span><span class="detail-val">${fmtDate(u.joinDate)}</span></div>
+      <div class="detail-row"><span class="detail-label">Device</span><span class="detail-val">${u.device||'—'}</span></div>
+      <div class="detail-row"><span class="detail-label">FCM Token</span><span class="detail-val" style="font-size:11px;word-break:break-all">${u.fcmToken||'—'}</span></div>
+    </div>
+    <div id="userTab-tx" style="display:none">
+      ${txs.length?`<div class="table-wrap"><table><thead><tr><th>Type</th><th>Amount</th><th>Description</th><th>Date</th></tr></thead><tbody>
+        ${txs.map(t=>`<tr><td>${t.type||'—'}</td><td><span class="${t.amount>0?'badge active':'badge rejected'}">${t.amount>0?'+':''}${fmt(t.amount)}</span></td><td>${t.description||'—'}</td><td style="color:var(--muted);font-size:12px">${fmtDateTime(t.timestamp)}</td></tr>`).join('')}
+      </tbody></table></div>`:'<div class="empty-state"><div class="empty-icon">💳</div><p>No transactions</p></div>'}
+    </div>
+    <div id="userTab-redeem" style="display:none">
+      ${redeems.length?`<div class="table-wrap"><table><thead><tr><th>Amount</th><th>UPI</th><th>Status</th><th>Date</th></tr></thead><tbody>
+        ${redeems.map(r=>`<tr><td>₹${fmt(r.amount)}</td><td>${r.upiId||'—'}</td><td><span class="badge ${r.status}">${r.status}</span></td><td style="color:var(--muted);font-size:12px">${fmtDateTime(r.timestamp)}</td></tr>`).join('')}
+      </tbody></table></div>`:'<div class="empty-state"><div class="empty-icon">🎁</div><p>No redeem history</p></div>'}
+    </div>
+    <div id="userTab-refs" style="display:none">
+      ${refs.length?`<div class="table-wrap"><table><thead><tr><th>Role</th><th>Other User</th><th>Reward</th><th>Date</th></tr></thead><tbody>
+        ${refs.map(r=>`<tr><td>${r.inviterId===uid?'Inviter':'Invited'}</td><td>${r.inviterId===uid?r.invitedId:r.inviterId}</td><td class="coin-pill">🪙 ${fmt(r.reward)}</td><td style="color:var(--muted);font-size:12px">${fmtDateTime(r.timestamp)}</td></tr>`).join('')}
+      </tbody></table></div>`:'<div class="empty-state"><div class="empty-icon">🔗</div><p>No referrals</p></div>'}
+    </div>`;
+  openModal('userDetailsModal');
+};
+window.switchUserTab=(id,el)=>{
+  document.querySelectorAll('[id^="userTab-"]').forEach(t=>t.style.display='none');
+  document.getElementById('userTab-'+id).style.display='block';
+  el.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+};
+
+window.openAddCoins=(uid,name)=>{
+  editCoinsUid=uid;editCoinsMode='add';
+  document.getElementById('editCoinsTitle').textContent=`Add Coins — ${name}`;
+  document.getElementById('editCoinsAmount').value='';
+  document.getElementById('editCoinsReason').value='';
+  document.getElementById('editCoinsConfirmBtn').className='btn btn-success';
+  document.getElementById('editCoinsConfirmBtn').textContent='Add Coins';
+  openModal('editCoinsModal');
+};
+window.openRemoveCoins=(uid,name)=>{
+  editCoinsUid=uid;editCoinsMode='remove';
+  document.getElementById('editCoinsTitle').textContent=`Remove Coins — ${name}`;
+  document.getElementById('editCoinsAmount').value='';
+  document.getElementById('editCoinsReason').value='';
+  document.getElementById('editCoinsConfirmBtn').className='btn btn-danger';
+  document.getElementById('editCoinsConfirmBtn').textContent='Remove Coins';
+  openModal('editCoinsModal');
+};
+window.confirmEditCoins=async()=>{
+  const amount=parseInt(document.getElementById('editCoinsAmount').value)||0;
+  const reason=document.getElementById('editCoinsReason').value||'Admin adjustment';
+  if(amount<=0){toast('Enter a valid amount.','warning');return;}
+  try{
+    const userRef=ref(db,`users/${editCoinsUid}`);
+    const snap=await get(userRef);
+    if(!snap.exists()){toast('User not found.','error');return;}
+    const current=Number(snap.val().coins||0);
+    const newCoins=editCoinsMode==='add'?current+amount:Math.max(0,current-amount);
+    await update(userRef,{coins:newCoins});
+    await push(ref(db,'transactions'),{
+      userId:editCoinsUid,amount:editCoinsMode==='add'?amount:-amount,
+      type:editCoinsMode==='add'?'credit':'debit',description:reason,
+      timestamp:Date.now()
+    });
+    await push(ref(db,'wallet'),{
+      userId:editCoinsUid,action:editCoinsMode,amount,reason,by:currentAdmin.email,timestamp:Date.now()
+    });
+    await logAction(`Coins ${editCoinsMode}`,`${editCoinsUid}: ${editCoinsMode==='add'?'+':'−'}${amount} — ${reason}`);
+    toast(`Coins ${editCoinsMode==='add'?'added':'removed'} successfully!`,'success');
+    closeModal('editCoinsModal');
+    allUsers=allUsers.map(u=>u.uid===editCoinsUid?{...u,coins:newCoins}:u);
+    renderUsers();loadDashboardStats();
+  }catch(e){toast('Error: '+e.message,'error');}
+};
+
+window.setBanUser=async(uid,ban)=>{
+  confirmDialog(ban?'Ban User':'Unban User',`Are you sure you want to ${ban?'ban':'unban'} this user?`,async()=>{
+    await update(ref(db,`users/${uid}`),{status:ban?'banned':'active'});
+    await logAction(ban?'User Banned':'User Unbanned',uid);
+    toast(`User ${ban?'banned':'unbanned'}.`,'success');
+    allUsers=allUsers.map(u=>u.uid===uid?{...u,status:ban?'banned':'active'}:u);
+    renderUsers();
+  },ban?'btn-danger':'btn-success');
+};
+
+window.deleteUser=uid=>{
+  confirmDialog('Delete User','This will permanently delete the user. This cannot be undone.',async()=>{
+    await remove(ref(db,`users/${uid}`));
+    await logAction('User Deleted',uid);
+    toast('User deleted.','success');
+    allUsers=allUsers.filter(u=>u.uid!==uid);
+    renderUsers();loadDashboardStats();
+  },'btn-danger');
+};
+
+window.exportUsersCSV=()=>exportCSV(
+  ['Name','Email','UID','Coins','Referral','Joined','Status'],
+  allUsers.map(u=>[u.name||'',u.email||'',u.uid,u.coins||0,u.referralCode||'',fmtDate(u.joinDate),u.status||'active']),
+  'users.csv'
+);
+
+// ═══════════════════════════════════════════════════════
+//  WALLET
+// ═══════════════════════════════════════════════════════
+window.searchWallet=async()=>{
+  const q=document.getElementById('walletSearch').value.trim().toLowerCase();
+  if(!q){toast('Enter a UID or email to search.','warning');return;}
+  const el=document.getElementById('walletResult');
+  el.innerHTML='<div class="loading-overlay"><div class="spinner"></div></div>';
+  const u=allUsers.find(u=>u.uid.toLowerCase()===q||u.email.toLowerCase()===q||(u.email||'').toLowerCase().includes(q));
+  if(!u){el.innerHTML='<p style="color:var(--muted);font-size:13px">User not found.</p>';return;}
+  el.innerHTML=`
+    <div class="flex ac gap12 mb-12" style="margin-bottom:12px">
+      <div class="avatar-sm">${(u.name||u.email||'U')[0].toUpperCase()}</div>
+      <div><div style="font-weight:600">${u.name||u.email}</div><div style="font-size:12px;color:var(--muted)">${u.uid}</div></div>
+      <div class="coin-pill" style="margin-left:auto">🪙 ${fmt(u.coins)}</div>
+    </div>
+    <div class="flex gap8">
+      <button class="btn btn-sm btn-success" onclick="openAddCoins('${u.uid}','${u.name||u.email||'User'}')">+ Add Coins</button>
+      <button class="btn btn-sm btn-danger" onclick="openRemoveCoins('${u.uid}','${u.name||u.email||'User'}')">− Remove</button>
+      <button class="btn btn-sm btn-warning" onclick="resetWallet('${u.uid}')">↺ Reset</button>
+    </div>`;
+};
+window.resetWallet=uid=>{
+  confirmDialog('Reset Wallet','This will set the user coin balance to 0.',async()=>{
+    await update(ref(db,`users/${uid}`),{coins:0});
+    await push(ref(db,'wallet'),{userId:uid,action:'reset',amount:0,reason:'Admin reset',by:currentAdmin.email,timestamp:Date.now()});
+    await logAction('Wallet Reset',uid);
+    toast('Wallet reset to 0.','success');
+    allUsers=allUsers.map(u=>u.uid===uid?{...u,coins:0}:u);
+  },'btn-danger');
+};
+
+async function loadWalletLogs(){
+  const el=document.getElementById('walletLogsTable');
+  try{
+    const snap=await get(ref(db,'wallet'));
+    if(!snap.exists()){el.innerHTML='<div class="empty-state"><div class="empty-icon">💰</div><p>No wallet logs yet</p></div>';return;}
+    const rows=Object.values(snap.val()).sort((a,b)=>b.timestamp-a.timestamp).slice(0,50);
+    el.innerHTML=`<div class="table-wrap"><table><thead><tr><th>User</th><th>Action</th><th>Amount</th><th>Reason</th><th>By</th><th>Date</th></tr></thead><tbody>
+      ${rows.map(r=>`<tr>
+        <td><code style="font-size:11px">${(r.userId||'').substring(0,12)}…</code></td>
+        <td><span class="badge ${r.action==='add'?'approved':r.action==='remove'?'rejected':'pending'}">${r.action||'—'}</span></td>
+        <td>${fmt(r.amount)}</td><td>${r.reason||'—'}</td>
+        <td style="font-size:12px;color:var(--muted)">${r.by||'—'}</td>
+        <td style="font-size:12px;color:var(--muted)">${fmtDateTime(r.timestamp)}</td>
+      </tr>`).join('')}
+    </tbody></table></div>`;
+  }catch(e){el.innerHTML='<p style="color:var(--red);font-size:13px">Error loading logs.</p>';}
+}
+
+// ═══════════════════════════════════════════════════════
+//  TRANSACTIONS
+// ═══════════════════════════════════════════════════════
+async function loadTransactions(){
+  try{
+    const snap=await get(ref(db,'transactions'));
+    allTx=snap.exists()?Object.entries(snap.val()).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.timestamp-a.timestamp):[];
+    renderTransactions();
+  }catch(e){}
+}
+function renderTransactions(){
+  const search=document.getElementById('txSearch').value.toLowerCase();
+  const type=document.getElementById('txTypeFilter').value;
+  const date=document.getElementById('txDateFilter').value;
+  let rows=allTx.filter(t=>{
+    const m=!search||(t.userId||'').toLowerCase().includes(search)||(t.type||'').toLowerCase().includes(search);
+    const tp=!type||t.type===type;
+    const dt=!date||fmtDate(t.timestamp).includes(date);
+    return m&&tp&&dt;
+  });
+  const total=rows.length;const totalPages=Math.max(1,Math.ceil(total/PAGE_SIZE));
+  if(txPage>totalPages)txPage=1;
+  const slice=rows.slice((txPage-1)*PAGE_SIZE,txPage*PAGE_SIZE);
+  const tbody=document.getElementById('txTableBody');
+  if(!slice.length){tbody.innerHTML='<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">💳</div><p>No transactions found</p></div></td></tr>';return;}
+  tbody.innerHTML=slice.map(t=>`<tr>
+    <td><code style="font-size:11px;color:var(--muted)">${(t.userId||'').substring(0,14)}…</code></td>
+    <td><span class="badge ${t.type==='credit'||t.amount>0?'approved':'rejected'}">${t.type||'—'}</span></td>
+    <td><b style="color:${t.amount>0?'var(--green)':'var(--red)'}">${t.amount>0?'+':''}${fmt(t.amount)}</b></td>
+    <td style="color:var(--muted);font-size:13px">${t.description||'—'}</td>
+    <td style="color:var(--muted);font-size:12px">${fmtDateTime(t.timestamp)}</td>
+  </tr>`).join('');
+  renderPagination('txPagination',totalPages,txPage,p=>{txPage=p;renderTransactions();});
+}
+window.filterTransactions=()=>{txPage=1;renderTransactions();};
+window.exportTxCSV=()=>exportCSV(
+  ['UserID','Type','Amount','Description','Date'],
+  allTx.map(t=>[t.userId||'',t.type||'',t.amount||0,t.description||'',fmtDateTime(t.timestamp)]),
+  'transactions.csv'
+);
+
+// ═══════════════════════════════════════════════════════
+//  REDEEM
+// ═══════════════════════════════════════════════════════
+async function loadRedeems(){
+  try{
+    const snap=await get(ref(db,'redeemRequests'));
+    allRedeems=snap.exists()?Object.entries(snap.val()).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.timestamp-a.timestamp):[];
+    renderRedeems();
+  }catch(e){}
+}
+function renderRedeems(){
+  const search=document.getElementById('redeemSearch').value.toLowerCase();
+  const status=document.getElementById('redeemStatusFilter').value;
+  let rows=allRedeems.filter(r=>{
+    const m=!search||(r.userName||'').toLowerCase().includes(search)||(r.upiId||'').toLowerCase().includes(search)||(r.userId||'').toLowerCase().includes(search);
+    const s=!status||r.status===status;
+    return m&&s;
+  });
+  const total=rows.length;const totalPages=Math.max(1,Math.ceil(total/PAGE_SIZE));
+  if(redeemPage>totalPages)redeemPage=1;
+  const slice=rows.slice((redeemPage-1)*PAGE_SIZE,redeemPage*PAGE_SIZE);
+  const tbody=document.getElementById('redeemTableBody');
+  if(!slice.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">🎁</div><p>No redeem requests found</p></div></td></tr>';return;}
+  tbody.innerHTML=slice.map(r=>`<tr>
+    <td><div style="font-weight:600">${r.userName||r.userId||'—'}</div><div style="font-size:11px;color:var(--muted)">${(r.userId||'').substring(0,14)}</div></td>
+    <td><b>₹${fmt(r.amount)}</b></td>
+    <td style="font-size:12px">${r.upiId||'—'}</td>
+    <td style="color:var(--muted);font-size:12px">${fmtDateTime(r.timestamp)}</td>
+    <td><span class="badge ${r.status}">${r.status}</span></td>
+    <td><div class="action-btns">
+      <button class="btn btn-sm btn-info" onclick="viewRedeem('${r.id}')">👁 Details</button>
+      ${r.status==='pending'?`
+        <button class="btn btn-sm btn-success" onclick="processRedeem('${r.id}','approved')">✔ Approve</button>
+        <button class="btn btn-sm btn-danger" onclick="processRedeem('${r.id}','rejected')">✕ Reject</button>`:''}
+    </div></td>
+  </tr>`).join('');
+  renderPagination('redeemPagination',totalPages,redeemPage,p=>{redeemPage=p;renderRedeems();});
+}
+window.filterRedeems=()=>{redeemPage=1;renderRedeems();};
+window.viewRedeem=id=>{
+  const r=allRedeems.find(r=>r.id===id);if(!r)return;
+  document.getElementById('redeemDetailsBody').innerHTML=`
+    <div class="detail-row"><span class="detail-label">User</span><span class="detail-val">${r.userName||r.userId||'—'}</span></div>
+    <div class="detail-row"><span class="detail-label">User ID</span><span class="detail-val"><code>${r.userId||'—'}</code></span></div>
+    <div class="detail-row"><span class="detail-label">Amount</span><span class="detail-val"><b>₹${fmt(r.amount)}</b></span></div>
+    <div class="detail-row"><span class="detail-label">UPI ID</span><span class="detail-val">${r.upiId||'—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Status</span><span class="detail-val"><span class="badge ${r.status}">${r.status}</span></span></div>
+    <div class="detail-row"><span class="detail-label">Requested</span><span class="detail-val">${fmtDateTime(r.timestamp)}</span></div>
+    ${r.processedAt?`<div class="detail-row"><span class="detail-label">Processed</span><span class="detail-val">${fmtDateTime(r.processedAt)}</span></div>`:''}
+    ${r.processedBy?`<div class="detail-row"><span class="detail-label">Processed By</span><span class="detail-val">${r.processedBy}</span></div>`:''}
+    ${r.note?`<div class="detail-row"><span class="detail-label">Note</span><span class="detail-val">${r.note}</span></div>`:''}`;
+  document.getElementById('redeemDetailsFooter').innerHTML=r.status==='pending'?`
+    <button class="btn btn-outline" onclick="closeModal('redeemDetailsModal')">Close</button>
+    <button class="btn btn-success" onclick="processRedeem('${r.id}','approved');closeModal('redeemDetailsModal')">✔ Approve</button>
+    <button class="btn btn-danger" onclick="processRedeem('${r.id}','rejected');closeModal('redeemDetailsModal')">✕ Reject</button>`:
+    `<button class="btn btn-primary" onclick="closeModal('redeemDetailsModal')">Close</button>`;
+  openModal('redeemDetailsModal');
+};
+window.processRedeem=async(id,status)=>{
+  confirmDialog(status==='approved'?'Approve Redeem':'Reject Redeem',`Are you sure you want to ${status} this redeem request?`,async()=>{
+    const r=allRedeems.find(r=>r.id===id);if(!r)return;
+    await update(ref(db,`redeemRequests/${id}`),{status,processedAt:Date.now(),processedBy:currentAdmin.email});
+    await push(ref(db,'notifications'),{title:status==='approved'?'Redeem Approved!':'Redeem Rejected',
+      message:status==='approved'?`Your redeem of ₹${r.amount} has been approved.`:`Your redeem of ₹${r.amount} was rejected.`,
+      userId:r.userId,type:'redeem',timestamp:Date.now()});
+    await logAction(`Redeem ${status}`,`ID: ${id}, Amount: ₹${r.amount}`);
+    toast(`Redeem ${status}.`,status==='approved'?'success':'error');
+    allRedeems=allRedeems.map(rr=>rr.id===id?{...rr,status,processedAt:Date.now(),processedBy:currentAdmin.email}:rr);
+    renderRedeems();loadDashboardStats();
+  },status==='approved'?'btn-success':'btn-danger');
+};
+window.exportRedeemCSV=()=>exportCSV(
+  ['User','Amount','UPI','Status','Date'],
+  allRedeems.map(r=>[r.userName||r.userId||'',r.amount||0,r.upiId||'',r.status,fmtDateTime(r.timestamp)]),
+  'redeems.csv'
+);
+
+// ═══════════════════════════════════════════════════════
+//  REFERRALS
+// ═══════════════════════════════════════════════════════
+async function loadReferrals(){
+  try{
+    const snap=await get(ref(db,'referrals'));
+    allRefs=snap.exists()?Object.entries(snap.val()).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.timestamp-a.timestamp):[];
+    renderReferrals();
+  }catch(e){}
+}
+function renderReferrals(){
+  const search=document.getElementById('refSearch').value.toLowerCase();
+  const rows=allRefs.filter(r=>!search||(r.inviterId||'').toLowerCase().includes(search)||(r.invitedId||'').toLowerCase().includes(search));
+  const tbody=document.getElementById('refTableBody');
+  if(!rows.length){tbody.innerHTML='<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">🔗</div><p>No referrals found</p></div></td></tr>';return;}
+  tbody.innerHTML=rows.slice(0,100).map(r=>`<tr>
+    <td><code style="font-size:12px">${r.inviterEmail||r.inviterId||'—'}</code></td>
+    <td><code style="font-size:12px">${r.invitedEmail||r.invitedId||'—'}</code></td>
+    <td><span class="coin-pill">🪙 ${fmt(r.reward)}</span></td>
+    <td style="color:var(--muted);font-size:12px">${fmtDateTime(r.timestamp)}</td>
+  </tr>`).join('');
+}
+window.filterReferrals=()=>renderReferrals();
+window.exportRefCSV=()=>exportCSV(
+  ['Inviter','Invited','Reward','Date'],
+  allRefs.map(r=>[r.inviterId||'',r.invitedId||'',r.reward||0,fmtDateTime(r.timestamp)]),
+  'referrals.csv'
+);
+
+// ═══════════════════════════════════════════════════════
+//  DAILY BONUS
+// ═══════════════════════════════════════════════════════
+async function loadDailyBonus(){
+  const el=document.getElementById('dailyBonusForm');
+  try{
+    const snap=await get(ref(db,'dailyBonus'));
+    const data=snap.exists()?snap.val():{};
+    el.innerHTML=`<div style="margin-bottom:16px;color:var(--muted);font-size:13px">Set rewards for each day of the daily check-in streak.</div>
+      ${[1,2,3,4,5,6,7].map(d=>`
+        <div class="form-group"><label>Day ${d} Reward (Coins)</label>
+          <input class="panel-input" type="number" id="bonus-day${d}" value="${data['day'+d]||10*(d)}" min="0"/>
+        </div>`).join('')}
+      <button class="btn btn-primary" onclick="saveDailyBonus()">💾 Save Changes</button>`;
+  }catch(e){el.innerHTML='<p style="color:var(--red)">Error loading settings.</p>';}
+}
+window.saveDailyBonus=async()=>{
+  const obj={};
+  for(let d=1;d<=7;d++)obj['day'+d]=parseInt(document.getElementById('bonus-day'+d).value)||0;
+  await set(ref(db,'dailyBonus'),obj);
+  await logAction('Daily Bonus Updated','');
+  toast('Daily bonus saved!','success');
+};
+
+// ═══════════════════════════════════════════════════════
+//  SPIN WHEEL
+// ═══════════════════════════════════════════════════════
+async function loadSpinWheel(){
+  const el=document.getElementById('spinWheelForm');
+  try{
+    const snap=await get(ref(db,'spinRewards'));
+    const data=snap.exists()?snap.val():{};
+    renderSpinForm(data);
+  }catch(e){el.innerHTML='<p style="color:var(--red)">Error loading spin rewards.</p>';}
+}
+function renderSpinForm(data){
+  const el=document.getElementById('spinWheelForm');
+  const items=Object.entries(data).map(([k,v])=>({...v,id:k}));
+  if(!items.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">🎡</div><p>No spin rewards yet. Add one below.</p></div>';return;}
+  el.innerHTML=`<div style="display:flex;flex-direction:column;gap:10px">
+    ${items.map(item=>`
+      <div class="flex ac gap12" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r2);padding:12px">
+        <div style="flex:1">
+          <div style="font-weight:600">🪙 ${fmt(item.coins)} Coins</div>
+          <div style="font-size:12px;color:var(--muted)">Weight: ${item.weight||1}</div>
+        </div>
+        <div class="toggle-wrap"><div class="toggle ${item.enabled?'on':''}" onclick="toggleSpinReward('${item.id}',this)"></div><span style="font-size:12px">Enabled</span></div>
+        <input type="number" value="${item.coins}" style="width:80px" class="panel-input" id="spin-coins-${item.id}" placeholder="Coins"/>
+        <input type="number" value="${item.weight||1}" style="width:60px" class="panel-input" id="spin-weight-${item.id}" placeholder="Weight" min="1"/>
+        <button class="btn btn-sm btn-success" onclick="updateSpinReward('${item.id}')">💾</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteSpinReward('${item.id}')">🗑</button>
+      </div>`).join('')}
+  </div>`;
+}
+window.addSpinReward=async()=>{
+  const newRef=push(ref(db,'spinRewards'));
+  await set(newRef,{coins:50,weight:1,enabled:true});
+  await logAction('Spin Reward Added','');
+  toast('Reward added!','success');loadSpinWheel();
+};
+window.toggleSpinReward=async(id,el)=>{
+  el.classList.toggle('on');
+  const enabled=el.classList.contains('on');
+  await update(ref(db,`spinRewards/${id}`),{enabled});
+  toast(`Reward ${enabled?'enabled':'disabled'}.`,'info');
+};
+window.updateSpinReward=async id=>{
+  const coins=parseInt(document.getElementById('spin-coins-'+id).value)||0;
+  const weight=parseInt(document.getElementById('spin-weight-'+id).value)||1;
+  await update(ref(db,`spinRewards/${id}`),{coins,weight});
+  await logAction('Spin Reward Updated',`ID: ${id}`);
+  toast('Reward updated!','success');
+};
+window.deleteSpinReward=id=>{
+  confirmDialog('Delete Spin Reward','Remove this reward from the spin wheel?',async()=>{
+    await remove(ref(db,`spinRewards/${id}`));
+    await logAction('Spin Reward Deleted',id);
+    toast('Reward deleted.','success');loadSpinWheel();
+  },'btn-danger');
+};
+
+// ═══════════════════════════════════════════════════════
+//  NOTIFICATIONS
+// ═══════════════════════════════════════════════════════
+async function loadNotifications(){
+  const el=document.getElementById('notifList');
+  try{
+    const snap=await get(ref(db,'notifications'));
+    if(!snap.exists()){el.innerHTML='<div class="empty-state"><div class="empty-icon">🔔</div><p>No notifications sent yet</p></div>';return;}
+    const items=Object.entries(snap.val()).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.timestamp-a.timestamp).slice(0,20);
+    el.innerHTML=items.map(n=>`
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:10px">
+        <div class="flex jb ac" style="margin-bottom:6px">
+          <div style="font-weight:700;font-size:14px">${n.title||'—'}</div>
+          <div class="flex gap8 ac">
+            <span class="badge pending" style="font-size:10px">${n.type||'general'}</span>
+            <button class="btn btn-sm btn-danger" onclick="deleteNotif('${n.id}')">🗑</button>
+          </div>
+        </div>
+        <div style="font-size:13px;color:var(--muted)">${n.message||'—'}</div>
+        <div style="font-size:11px;color:var(--border);margin-top:6px">${fmtDateTime(n.timestamp)}</div>
+      </div>`).join('');
+  }catch(e){el.innerHTML='<p style="color:var(--red);font-size:13px">Error.</p>';}
+}
+window.sendNotification=async()=>{
+  const title=document.getElementById('notifTitle').value.trim();
+  const msg=document.getElementById('notifMsg').value.trim();
+  const type=document.getElementById('notifType').value;
+  if(!title||!msg){toast('Enter title and message.','warning');return;}
+  await push(ref(db,'notifications'),{title,message:msg,type,timestamp:Date.now(),by:currentAdmin.email});
+  await logAction('Notification Sent',title);
+  toast('Notification sent!','success');
+  document.getElementById('notifTitle').value='';document.getElementById('notifMsg').value='';
+  loadNotifications();
+};
+window.deleteNotif=id=>{
+  confirmDialog('Delete Notification','Remove this notification?',async()=>{
+    await remove(ref(db,`notifications/${id}`));
+    toast('Notification deleted.','success');loadNotifications();
+  },'btn-danger');
+};
+
+// ═══════════════════════════════════════════════════════
+//  BANNERS
+// ═══════════════════════════════════════════════════════
+async function loadBanners(){
+  const el=document.getElementById('bannerList');
+  try{
+    const snap=await get(ref(db,'banners'));
+    if(!snap.exists()){el.innerHTML='<div class="empty-state"><div class="empty-icon">🖼</div><p>No banners yet</p></div>';return;}
+    const items=Object.entries(snap.val()).map(([k,v])=>({...v,id:k}));
+    el.innerHTML=items.map(b=>`
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:10px">
+        ${b.imageUrl?`<img src="${b.imageUrl}" style="width:100%;height:80px;object-fit:cover;border-radius:8px;margin-bottom:8px" onerror="this.style.display='none'"/>`:''}
+        <div class="flex jb ac">
+          <div><div style="font-weight:700;font-size:13px">${b.title||'—'}</div>
+            <div style="font-size:11px;color:var(--muted)">${b.link||'No link'}</div></div>
+          <div class="flex gap8 ac">
+            <span class="badge ${b.enabled?'approved':'rejected'}">${b.enabled?'Active':'Inactive'}</span>
+            <button class="btn btn-sm btn-warning" onclick="toggleBanner('${b.id}',${!b.enabled})">${b.enabled?'Disable':'Enable'}</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteBanner('${b.id}')">🗑</button>
+          </div>
+        </div>
+      </div>`).join('');
+  }catch(e){el.innerHTML='<p style="color:var(--red);font-size:13px">Error.</p>';}
+}
+window.addBanner=async()=>{
+  const title=document.getElementById('bannerTitle').value.trim();
+  const imageUrl=document.getElementById('bannerUrl').value.trim();
+  const link=document.getElementById('bannerLink').value.trim();
+  const enabled=document.getElementById('bannerActive').classList.contains('on');
+  if(!title||!imageUrl){toast('Enter title and image URL.','warning');return;}
+  await push(ref(db,'banners'),{title,imageUrl,link,enabled,createdAt:Date.now()});
+  await logAction('Banner Added',title);
+  toast('Banner saved!','success');
+  document.getElementById('bannerTitle').value='';document.getElementById('bannerUrl').value='';document.getElementById('bannerLink').value='';
+  loadBanners();
+};
+window.toggleBanner=async(id,enabled)=>{
+  await update(ref(db,`banners/${id}`),{enabled});
+  toast(`Banner ${enabled?'enabled':'disabled'}.`,'info');loadBanners();
+};
+window.deleteBanner=id=>{
+  confirmDialog('Delete Banner','Remove this banner?',async()=>{
+    await remove(ref(db,`banners/${id}`));
+    toast('Banner deleted.','success');loadBanners();
+  },'btn-danger');
+};
+
+// ═══════════════════════════════════════════════════════
+//  SETTINGS
+// ═══════════════════════════════════════════════════════
+async function loadSettings(){
+  const el=document.getElementById('settingsForm');
+  try{
+    const snap=await get(ref(db,'settings'));
+    const d=snap.exists()?snap.val():{};
+    el.innerHTML=`
+      <div class="form-group"><label>Minimum Redeem Amount (₹)</label><input class="panel-input" type="number" id="set-minRedeem" value="${d.minRedeem||50}"/></div>
+      <div class="form-group"><label>Coins Per Ad</label><input class="panel-input" type="number" id="set-coinsPerAd" value="${d.coinsPerAd||10}"/></div>
+      <div class="form-group"><label>Daily Ad Limit</label><input class="panel-input" type="number" id="set-dailyLimit" value="${d.dailyLimit||20}"/></div>
+      <div class="form-group"><label>Referral Reward (Coins)</label><input class="panel-input" type="number" id="set-referralReward" value="${d.referralReward||50}"/></div>
+      <div class="form-group"><label>Daily Spin Limit</label><input class="panel-input" type="number" id="set-spinLimit" value="${d.spinLimit||3}"/></div>
+      <div class="form-group"><label>App Version</label><input class="panel-input" id="set-version" value="${d.version||'1.0.0'}"/></div>
+      <div class="form-group flex ac gap12">
+        <div class="toggle-wrap" onclick="document.getElementById('set-maintenance').classList.toggle('on')">
+          <div class="toggle ${d.maintenance?'on':''}" id="set-maintenance"></div>
+          <span class="toggle-label">Maintenance Mode</span>
+        </div>
+      </div>
+      <div class="form-group"><label>Maintenance Message</label><textarea class="panel-input" id="set-maintMsg">${d.maintenanceMessage||''}</textarea></div>
+      <button class="btn btn-primary" onclick="saveSettings()">💾 Save Settings</button>`;
+  }catch(e){el.innerHTML='<p style="color:var(--red)">Error loading settings.</p>';}
+}
+window.saveSettings=async()=>{
+  const obj={
+    minRedeem:parseInt(document.getElementById('set-minRedeem').value)||50,
+    coinsPerAd:parseInt(document.getElementById('set-coinsPerAd').value)||10,
+    dailyLimit:parseInt(document.getElementById('set-dailyLimit').value)||20,
+    referralReward:parseInt(document.getElementById('set-referralReward').value)||50,
+    spinLimit:parseInt(document.getElementById('set-spinLimit').value)||3,
+    version:document.getElementById('set-version').value||'1.0.0',
+    maintenance:document.getElementById('set-maintenance').classList.contains('on'),
+    maintenanceMessage:document.getElementById('set-maintMsg').value
+  };
+  await set(ref(db,'settings'),obj);
+  await logAction('Settings Updated','');
+  toast('Settings saved!','success');
+};
+
+// ═══════════════════════════════════════════════════════
+//  FORCE UPDATE
+// ═══════════════════════════════════════════════════════
+async function loadForceUpdate(){
+  const el=document.getElementById('forceUpdateForm');
+  try{
+    const snap=await get(ref(db,'settings/update'));
+    const d=snap.exists()?snap.val():{};
+    el.innerHTML=`
+      <div class="form-group"><label>Latest Version Name</label><input class="panel-input" id="fu-version" value="${d.version||'1.0.0'}"/></div>
+      <div class="form-group"><label>Version Code</label><input class="panel-input" type="number" id="fu-versionCode" value="${d.versionCode||1}"/></div>
+      <div class="form-group"><label>Update Title</label><input class="panel-input" id="fu-title" value="${d.title||'Update Available'}"/></div>
+      <div class="form-group"><label>Update Description</label><textarea class="panel-input" id="fu-desc">${d.description||''}</textarea></div>
+      <div class="form-group"><label>Update URL (Play Store)</label><input class="panel-input" id="fu-url" value="${d.url||''}"/></div>
+      <div class="form-group">
+        <div class="toggle-wrap" onclick="document.getElementById('fu-force').classList.toggle('on')">
+          <div class="toggle ${d.forceUpdate?'on':''}" id="fu-force"></div>
+          <span class="toggle-label">Force Update</span>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="saveForceUpdate()">💾 Save</button>`;
+  }catch(e){el.innerHTML='<p style="color:var(--red)">Error loading update settings.</p>';}
+}
+window.saveForceUpdate=async()=>{
+  const obj={
+    version:document.getElementById('fu-version').value,
+    versionCode:parseInt(document.getElementById('fu-versionCode').value)||1,
+    title:document.getElementById('fu-title').value,
+    description:document.getElementById('fu-desc').value,
+    url:document.getElementById('fu-url').value,
+    forceUpdate:document.getElementById('fu-force').classList.contains('on')
+  };
+  await set(ref(db,'settings/update'),obj);
+  await logAction('Force Update Settings Saved','');
+  toast('Force update saved!','success');
+};
+
+// ═══════════════════════════════════════════════════════
+//  ADMINS
+// ═══════════════════════════════════════════════════════
+async function loadAdmins(){
+  const el=document.getElementById('adminList');
+  try{
+    const snap=await get(ref(db,'admins'));
+    if(!snap.exists()){el.innerHTML='<div class="empty-state"><div class="empty-icon">🛡</div><p>No admins found</p></div>';return;}
+    const items=Object.entries(snap.val()).map(([k,v])=>({...v,uid:k}));
+    el.innerHTML=items.map(a=>`
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r2);padding:12px;margin-bottom:8px">
+        <div class="flex jb ac">
+          <div><div style="font-weight:600;font-size:13px">${a.email||'—'}</div>
+            <span class="badge ${a.role}">${a.role||'viewer'}</span></div>
+          <div class="flex gap8">
+            <select class="select-filter" style="padding:6px" onchange="changeAdminRole('${a.uid}',this.value)">
+              ${['super_admin','manager','support','viewer'].map(r=>`<option value="${r}" ${a.role===r?'selected':''}>${r}</option>`).join('')}
+            </select>
+            ${a.uid!==currentAdmin.uid?`<button class="btn btn-sm btn-danger" onclick="deleteAdmin('${a.uid}')">🗑</button>`:'<span style="font-size:11px;color:var(--muted)">(you)</span>'}
+          </div>
+        </div>
+      </div>`).join('');
+  }catch(e){el.innerHTML='<p style="color:var(--red);font-size:13px">Error.</p>';}
+}
+window.addAdmin=async()=>{
+  if(currentAdmin.role!=='super_admin'){toast('Only super admins can add admins.','error');return;}
+  const email=document.getElementById('newAdminEmail').value.trim();
+  const role=document.getElementById('newAdminRole').value;
+  if(!email){toast('Enter an email address.','warning');return;}
+  // We store by a placeholder key since we don't know their UID yet; they'll be verified on login
+  const key=email.replace(/\./g,'_').replace(/@/g,'__at__');
+  await set(ref(db,`adminEmails/${key}`),{email,role,addedBy:currentAdmin.email,addedAt:Date.now()});
+  await logAction('Admin Added',`${email} as ${role}`);
+  toast('Admin email added! They must use this email to login.','success');
+  document.getElementById('newAdminEmail').value='';
+  loadAdmins();
+};
+window.changeAdminRole=async(uid,role)=>{
+  await update(ref(db,`admins/${uid}`),{role});
+  await logAction('Admin Role Changed',`UID: ${uid} → ${role}`);
+  toast('Role updated.','success');
+};
+window.deleteAdmin=uid=>{
+  if(currentAdmin.role!=='super_admin'){toast('Only super admins can remove admins.','error');return;}
+  confirmDialog('Remove Admin','Remove this admin from the panel?',async()=>{
+    await remove(ref(db,`admins/${uid}`));
+    await logAction('Admin Removed',uid);
+    toast('Admin removed.','success');loadAdmins();
+  },'btn-danger');
+};
+
+// ═══════════════════════════════════════════════════════
+//  ACTIVITY LOGS
+// ═══════════════════════════════════════════════════════
+async function loadLogs(){
+  try{
+    const snap=await get(ref(db,'logs'));
+    allLogs=snap.exists()?Object.values(snap.val()).sort((a,b)=>b.timestamp-a.timestamp):[];
+    renderLogs();
+  }catch(e){}
+}
+function renderLogs(){
+  const search=document.getElementById('logsSearch').value.toLowerCase();
+  const rows=allLogs.filter(l=>!search||(l.action||'').toLowerCase().includes(search)||(l.adminEmail||'').toLowerCase().includes(search)||(l.details||'').toLowerCase().includes(search));
+  const tbody=document.getElementById('logsTableBody');
+  if(!rows.length){tbody.innerHTML='<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">📋</div><p>No logs found</p></div></td></tr>';return;}
+  tbody.innerHTML=rows.slice(0,200).map(l=>`<tr>
+    <td><b>${l.action||'—'}</b></td>
+    <td style="font-size:12px;color:var(--muted)">${l.adminEmail||'—'}</td>
+    <td style="font-size:12px;color:var(--muted)">${l.details||'—'}</td>
+    <td style="font-size:12px;color:var(--muted)">${fmtDateTime(l.timestamp)}</td>
+  </tr>`).join('');
+}
+window.filterLogs=()=>renderLogs();
+
+// ═══════════════════════════════════════════════════════
+//  PAGINATION HELPER  (safe registry — no toString hack)
+// ═══════════════════════════════════════════════════════
+const _pageCallbacks={};
+window._pageGo=(key,page)=>{if(_pageCallbacks[key])_pageCallbacks[key](page);};
+function renderPagination(elId,total,current,cb){
+  const el=document.getElementById(elId);
+  if(total<=1){el.innerHTML='';return;}
+  _pageCallbacks[elId]=cb;
+  let html=`<div class="page-info">Page ${current} of ${total}</div>`;
+  if(current>1)html+=`<div class="page-btn" onclick="_pageGo('${elId}',${current-1})">‹</div>`;
+  const start=Math.max(1,current-2);const end=Math.min(total,current+2);
+  for(let i=start;i<=end;i++)html+=`<div class="page-btn ${i===current?'active':''}" onclick="_pageGo('${elId}',${i})">${i}</div>`;
+  if(current<total)html+=`<div class="page-btn" onclick="_pageGo('${elId}',${current+1})">›</div>`;
+  el.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════
+//  KEYBOARD / MISC
+// ═══════════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.getElementById('loginScreen').style.display!=='none')doLogin();
+  if(e.key==='Escape'){document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'));}
+});
+// Restore remember me
+window.addEventListener('load',()=>{
+  const saved=localStorage.getItem('w2e_remember');
+  if(saved)document.getElementById('loginEmail').value=saved;
+});
+
+// ─── Re-export helpers to window for inline onclick ───
+window.exportCSV=exportCSV;
+</script>
+</body>
+</html>
